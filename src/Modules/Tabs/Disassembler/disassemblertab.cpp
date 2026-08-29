@@ -921,9 +921,12 @@ void DisassemblerTab::startDisassembly()
     m_progressBar->setValue(0);
     m_progressBar->setVisible(true);
     m_statusLabel->setText(
-        AppSettings::disasmBackend() == AppSettings::DisasmBackend::Radare2
-            ? tr("Running radare2…")
-            : tr("Running objdump…"));
+        [backend = AppSettings::disasmBackend()] () {
+            if (backend == AppSettings::DisasmBackend::Radare2)  return tr("Running radare2…");
+            if (backend == AppSettings::DisasmBackend::Objdump)  return tr("Running objdump…");
+            if (backend == AppSettings::DisasmBackend::Capstone) return tr("Running Capstone…");
+            return QString();
+    }());
 
     // Auto-open log panel when disassembly starts so user sees progress
     if (!m_logToggleBtn->isChecked()) {
@@ -933,7 +936,12 @@ void DisassemblerTab::startDisassembly()
     appendLog("=== Disassembly started: " +
               QDateTime::currentDateTime().toString("hh:mm:ss") + " ===");
     appendLog(QString("[disasm] backend: %1")
-                  .arg(AppSettings::disasmBackend() == AppSettings::DisasmBackend::Radare2 ? "radare2" : "objdump"));
+    .arg([backend = AppSettings::disasmBackend()]() -> QString {
+        if (backend == AppSettings::DisasmBackend::Radare2)  return "radare2";
+        if (backend == AppSettings::DisasmBackend::Objdump)  return "objdump";
+        if (backend == AppSettings::DisasmBackend::Capstone) return "Capstone";
+        return {};
+    }()));
 
     setRunningState(true);
     showPlaceholder(tr("Disassembling…"));

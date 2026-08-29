@@ -12,6 +12,7 @@ public:
     enum class DisasmBackend {
         Objdump = 0,
         Radare2 = 1,
+        Capstone = 2
     };
 
     //

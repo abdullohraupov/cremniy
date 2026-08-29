@@ -42,6 +42,7 @@ AppSettings::DisasmBackend AppSettings::disasmBackend()
 {
     const int v = settings().value(keyDisasmBackend(), static_cast<int>(DisasmBackend::Objdump)).toInt();
     if (v == static_cast<int>(DisasmBackend::Radare2)) return DisasmBackend::Radare2;
+    if (v == static_cast<int>(DisasmBackend::Capstone)) return DisasmBackend::Capstone;
     return DisasmBackend::Objdump;
 }
 

@@ -61,8 +61,9 @@ SettingsDialog::SettingsDialog(QWidget *parent)
     form->setLabelAlignment(Qt::AlignRight | Qt::AlignVCenter);
 
     m_backendCombo = new QComboBox(this);
-    m_backendCombo->addItem(tr("objdump"),  static_cast<int>(AppSettings::DisasmBackend::Objdump));
-    m_backendCombo->addItem(tr("radare2"),  static_cast<int>(AppSettings::DisasmBackend::Radare2));
+    m_backendCombo->addItem(tr("objdump"),   static_cast<int>(AppSettings::DisasmBackend::Objdump));
+    m_backendCombo->addItem(tr("radare2"),   static_cast<int>(AppSettings::DisasmBackend::Radare2));
+    m_backendCombo->addItem(tr("Capstone"),  static_cast<int>(AppSettings::DisasmBackend::Capstone));
     form->addRow(tr("Disassembler backend"), m_backendCombo);
 
     // Common disassembler options
@@ -376,9 +377,14 @@ void SettingsDialog::onTestTools()
 void SettingsDialog::onAccept()
 {
     const int backendInt = m_backendCombo->currentData().toInt();
-    const auto backend = (backendInt == static_cast<int>(AppSettings::DisasmBackend::Radare2))
-        ? AppSettings::DisasmBackend::Radare2
-        : AppSettings::DisasmBackend::Objdump;
+    AppSettings::DisasmBackend backend;
+
+    if (backendInt == static_cast<int>(AppSettings::DisasmBackend::Radare2))
+        backend = AppSettings::DisasmBackend::Radare2;
+    else if (backendInt == static_cast<int>(AppSettings::DisasmBackend::Objdump))
+        backend = AppSettings::DisasmBackend::Objdump;
+    else
+        backend = AppSettings::DisasmBackend::Capstone;
 
     AppSettings::setDisasmBackend(backend);
     AppSettings::setObjdumpPath(m_objdumpPath->text());
