@@ -32,7 +32,7 @@ jobs:
 
       - name: configure Pagefile
         if: runner.os == 'Windows'
-        uses: al-cheb/configure-pagefile-action@v1.2
+        uses: al-cheb/configure-pagefile-action@v1.5
         with:
           minimum-size: 8GB
           disk-root: "D:"
