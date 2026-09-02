@@ -5,6 +5,7 @@ set(CAPSTONE_GIT_URL "https://github.com/capstone-engine/capstone.git")
 
 set(LIEF_VERSION 1.0.0)
 set(LIEF_RELEASE_URL "https://github.com/lief-project/LIEF/releases/download/${LIEF_VERSION}")
+set(LIEF_GIT_URL "https://github.com/lief-project/LIEF.git")
 
 FetchContent_Declare(capstone
         GIT_REPOSITORY  "${CAPSTONE_GIT_URL}"
@@ -26,20 +27,35 @@ set(CAPSTONE_MIPS_SUPPORT ON CACHE BOOL "" FORCE)
 
 FetchContent_MakeAvailable(capstone)
 
-# Installing prebuilt LIEF for specific platform (Windows, MacOS, Linux).
-
-if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
-    set(LIEF_URL "${LIEF_RELEASE_URL}/LIEF-${LIEF_VERSION}-Linux-x86_64.tar.gz")
-elseif(CMAKE_SYSTEM_NAME STREQUAL "Windows")
-    set(LIEF_URL "${LIEF_RELEASE_URL}/LIEF-${LIEF_VERSION}-win64.zip")
-elseif(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
-    if(CMAKE_SYSTEM_PROCESSOR MATCHES "arm64|aarch64")
-        set(LIEF_URL "${LIEF_RELEASE_URL}/LIEF-${LIEF_VERSION}-Darwin-arm64.tar.gz")
-    else()
-        set(LIEF_URL "${LIEF_RELEASE_URL}/LIEF-${LIEF_VERSION}-Darwin-x86_64.tar.gz")
-    endif()
+# Installing LIEF for specific platform (Windows, MacOS, Linux).
+# If platform is Windows, build manually.
+if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
+    include(lief_options.cmake)
+    FetchContent_Declare(LIEF
+            GIT_REPOSITORY "${LIEF_GIT_URL}"
+            GIT_TAG        ${LIEF_VERSION}
+    )
+    FetchContent_MakeAvailable(LIEF)
 else()
-    message(FATAL_ERROR "No prebuilt LIEF for ${CMAKE_SYSTEM_NAME}")
+    # Download prebuilt LIEF
+    if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
+        set(LIEF_SDK_URL "${LIEF_RELEASE_URL}/LIEF-${LIEF_VERSION}-Linux-x86_64.tar.gz")
+    elseif(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
+        if(CMAKE_SYSTEM_PROCESSOR MATCHES "arm64|aarch64")
+            set(LIEF_SDK_URL "${LIEF_RELEASE_URL}/LIEF-${LIEF_VERSION}-Darwin-arm64.tar.gz")
+        else()
+            set(LIEF_SDK_URL "${LIEF_RELEASE_URL}/LIEF-${LIEF_VERSION}-Darwin-x86_64.tar.gz")
+        endif()
+    endif()
+
+    FetchContent_Declare(LIEF
+            URL ${LIEF_SDK_URL}
+            DOWNLOAD_EXTRACT_TIMESTAMP TRUE
+    )
+    FetchContent_MakeAvailable(LIEF)
+
+    list(APPEND CMAKE_PREFIX_PATH "${lief_SOURCE_DIR}")
+    find_package(LIEF REQUIRED COMPONENTS STATIC GLOBAL)
 endif()
 
 FetchContent_Declare(LIEF
