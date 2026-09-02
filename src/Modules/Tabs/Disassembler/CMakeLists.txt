@@ -55,20 +55,11 @@ else()
     FetchContent_MakeAvailable(LIEF)
 
     list(APPEND CMAKE_PREFIX_PATH "${lief_SOURCE_DIR}")
-    find_package(LIEF REQUIRED COMPONENTS STATIC GLOBAL)
-endif()
-
-FetchContent_Declare(LIEF
-        URL ${LIEF_URL}
-)
-
-FetchContent_MakeAvailable(LIEF)
-
-list(APPEND CMAKE_PREFIX_PATH "${lief_SOURCE_DIR}")
-
-find_package(LIEF REQUIRED COMPONENTS STATIC)
-if(TARGET LIEF::LIEF)
-    set_target_properties(LIEF::LIEF PROPERTIES IMPORTED_GLOBAL TRUE)
+    
+    find_package(LIEF REQUIRED COMPONENTS STATIC)
+    if(TARGET LIEF::LIEF)
+        set_target_properties(LIEF::LIEF PROPERTIES IMPORTED_GLOBAL TRUE)
+    endif()
 endif()
 
 target_sources(${PROJECT_NAME} PRIVATE
